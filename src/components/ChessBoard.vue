@@ -1,24 +1,29 @@
 <template>
   <div class="board">
-    <div v-for="piece in pieces" :key="piece.id" @click="selectPiece(piece)"
-         class="piece"><span
-        v-if="piece.symbol !== null">{{ piece.symbol ? "X" : "O" }}</span></div>
+    <div v-for="piece in pieces" :key="piece.id" @click="selectPiece(piece)" class="piece">
+      <span v-if="piece.symbol !== null">
+        {{ getPlayer(piece.symbol) }}
+      </span>
+    </div>
   </div>
-  <div v-if="whoWon || whoWon === false">
-    <p>Congratulation {{ whoWon ? "X" : "O" }} you are the winner!</p>
+  <div v-if="whoWon !== null">
+    <p>Congratulation {{ getPlayer(whoWon) }} you are the winner!</p>
   </div>
   <div v-if="numberOfClickedItems === 9 && whoWon === null">
-    <p>To bad, none of you where able to beat the oponent!</p>
+    <p>To bad, none of you where able to beat the opponent!</p>
   </div>
 </template>
 
 <script>
-
+//whoIsPlaying && whoWon
+// True = X , false = O
 export default {
   name: "ChessBoard",
   data() {
     return {
       whoIsPlaying: true,
+      whoWon: null,
+      numberOfClickedItems: 0,
       pieces: [
         {selected: false, id: 0, symbol: null},
         {selected: false, id: 1, symbol: null},
@@ -29,26 +34,11 @@ export default {
         {selected: false, id: 6, symbol: null},
         {selected: false, id: 7, symbol: null},
         {selected: false, id: 8, symbol: null}
-      ],
-      whoWon: null,
-      numberOfClickedItems: 0
+      ]
     }
   },
-  methods: {
-    selectPiece(selectedPiece) {
-      if (this.whoWon !== null) return;
-      this.numberOfClickedItems++;
-      this.pieces.map((piece) => {
-        if (piece.id === selectedPiece.id && piece.selected !== true) {
-          piece.selected = true;
-          piece.symbol = this.whoIsPlaying;
-          this.whoIsPlaying = !this.whoIsPlaying;
-        }
-        return piece;
-      });
-      this.hasThreeInARow();
-    },
-    hasThreeInARow() {
+  watch: {
+    pieces() {
 
       const possibilities = [
         [0, 4, 8],
@@ -70,10 +60,30 @@ export default {
 
         if (a.symbol && b.symbol && c.symbol) {
           this.whoWon = true;
+          break;
         } else if (a.symbol === false && b.symbol === false && c.symbol === false) {
           this.whoWon = false;
+          break;
         }
       }
+    }
+  },
+  methods: {
+    selectPiece(selectedPiece) {
+      if (this.whoWon !== null) return;
+      this.numberOfClickedItems++;
+      // Great example of immutability problem (remove this.pieces =)
+      this.pieces = this.pieces.map((piece) => {
+        if (piece.id === selectedPiece.id && piece.selected !== true) {
+          piece.selected = true;
+          piece.symbol = this.whoIsPlaying;
+          this.whoIsPlaying = !this.whoIsPlaying;
+        }
+        return piece;
+      });
+    },
+    getPlayer(isUserX) {
+      return isUserX ? "X" : "O";
     }
   },
 }
