@@ -7,5 +7,4 @@ module.exports = defineConfig({
       title: 'Tic tac to',
     },
   }
-
 })

@@ -1,4 +1,4 @@
-# farmerschess
+# Tic tac to ♟️♛
 
 ## Project setup
 ```
